@@ -33,3 +33,4 @@ C:\Users\admin\source\repos\DotnetAPI\obj\Debug\net10.0\refint\DotnetAPI.dll
 C:\Users\admin\source\repos\DotnetAPI\obj\Debug\net10.0\DotnetAPI.pdb
 C:\Users\admin\source\repos\DotnetAPI\obj\Debug\net10.0\DotnetAPI.genruntimeconfig.cache
 C:\Users\admin\source\repos\DotnetAPI\obj\Debug\net10.0\ref\DotnetAPI.dll
+C:\Users\admin\source\repos\DotnetAPI\obj\Debug\net10.0\DotnetAPI.sourcelink.json
