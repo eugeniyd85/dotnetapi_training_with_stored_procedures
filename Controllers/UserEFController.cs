@@ -20,6 +20,8 @@ public class UserEFController : ControllerBase
         _mapper = new Mapper(new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<UserToAddDto, User>();
+            cfg.CreateMap<UserSalary, UserSalary>();
+            cfg.CreateMap<UserJobInfo, UserJobInfo>();
         }));
     }
 
@@ -125,6 +127,15 @@ public class UserEFController : ControllerBase
         throw new Exception("User salary not found");
     }
 
+    // alternative way to get user salary
+    // [HttpGet("UserSalary/{userId}")]
+    // public IEnumerable<UserSalary> GetUserSalaryAlt(int userId)
+    // {
+    //     return _entityFramework.UserSalary.Where(us => us.UserId == userId).ToList();
+    // }
+
+
+
     [HttpPut("EditUserSalary")]
     public IActionResult EditUserSalary(UserSalary userSalary)
     {
@@ -133,6 +144,10 @@ public class UserEFController : ControllerBase
         if (userSalaryDb != null)
         {
             userSalaryDb.Salary = userSalary.Salary;
+
+            // alternative way to use mapping for updating user salary fields
+            // _mapper.Map(userSalary, userSalaryDb);
+
             if (_entityFramework.SaveChanges() > 0)
             {
                 return Ok();
@@ -145,22 +160,9 @@ public class UserEFController : ControllerBase
     }
 
     [HttpPost("AddUserSalary")]
-    public IActionResult AddUserSalary(UserSalary userSalary)
+    public IActionResult AddUserSalary(UserSalary userSalaryForInsert)
     {
-        //with automapper
-        UserSalary userSalaryDb = _mapper.Map<UserSalary>(userSalary);
-        
-
-        //without automapper
-        // User userDb = new User();
-
-        // userDb.FirstName = user.FirstName;
-        // userDb.LastName = user.LastName;
-        // userDb.Email = user.Email;
-        // userDb.Gender = user.Gender;
-        // userDb.Active = user.Active;
-
-        _entityFramework.Add(userSalaryDb);
+        _entityFramework.UserSalary.Add(userSalaryForInsert);
 
         if (_entityFramework.SaveChanges() > 0)
         {
@@ -213,6 +215,9 @@ public class UserEFController : ControllerBase
             userJobInfoDb.JobTitle = userJobInfo.JobTitle;
             userJobInfoDb.Department = userJobInfo.Department;
 
+            // alternative way to use mapping for updating user job info fields
+            // _mapper.Map(userJobInfo, userJobInfoDb);
+
             if (_entityFramework.SaveChanges() > 0)
             {
                 return Ok();
@@ -227,20 +232,7 @@ public class UserEFController : ControllerBase
     [HttpPost("AddUserJobInfo")]
     public IActionResult AddUserJobInfo(UserJobInfo userJobInfo)
     {
-        //with automapper
-        UserJobInfo userJobInfoDb = _mapper.Map<UserJobInfo>(userJobInfo);
-        
-
-        //without automapper
-        // User userDb = new User();
-
-        // userDb.FirstName = user.FirstName;
-        // userDb.LastName = user.LastName;
-        // userDb.Email = user.Email;
-        // userDb.Gender = user.Gender;
-        // userDb.Active = user.Active;
-
-        _entityFramework.Add(userJobInfoDb);
+        _entityFramework.UserJobInfo.Add(userJobInfo);
 
         if (_entityFramework.SaveChanges() > 0)
         {
