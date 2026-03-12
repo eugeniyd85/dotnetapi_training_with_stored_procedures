@@ -115,7 +115,7 @@ public class UserEFController : ControllerBase
     [HttpGet("UserSalary/{userId}")]
     public UserSalary GetUserSalary(int userId)
     {
-        UserSalary? userSalary = _entityFramework.UserSalary.Where(u => u.UserId == userId).FirstOrDefault();
+        UserSalary? userSalary = _entityFramework.UserSalary.Where(us => us.UserId == userId).FirstOrDefault();
 
         if (userSalary != null)
         {
@@ -188,5 +188,85 @@ public class UserEFController : ControllerBase
         }
 
         throw new Exception("User salary not found");
+    }
+
+    [HttpGet("UserJobInfo/{userId}")]
+    public UserJobInfo GetUserJobInfo(int userId)
+    {
+        UserJobInfo? userJobInfo = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userId).FirstOrDefault();
+
+        if (userJobInfo != null)
+        {
+            return userJobInfo;
+        }
+
+        throw new Exception("User job info not found");
+    }
+
+    [HttpPut("EditUserJobInfo")]
+    public IActionResult EditUserJobInfo(UserJobInfo userJobInfo)
+    {
+        UserJobInfo? userJobInfoDb = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userJobInfo.UserId).FirstOrDefault();
+
+        if (userJobInfoDb != null)
+        {
+            userJobInfoDb.JobTitle = userJobInfo.JobTitle;
+            userJobInfoDb.Department = userJobInfo.Department;
+
+            if (_entityFramework.SaveChanges() > 0)
+            {
+                return Ok();
+            }
+
+            throw new Exception("Failed to Edit User job info with ID " + userJobInfo.UserId);
+        }
+
+        throw new Exception("User job info not found");
+    }
+
+    [HttpPost("AddUserJobInfo")]
+    public IActionResult AddUserJobInfo(UserJobInfo userJobInfo)
+    {
+        //with automapper
+        UserJobInfo userJobInfoDb = _mapper.Map<UserJobInfo>(userJobInfo);
+        
+
+        //without automapper
+        // User userDb = new User();
+
+        // userDb.FirstName = user.FirstName;
+        // userDb.LastName = user.LastName;
+        // userDb.Email = user.Email;
+        // userDb.Gender = user.Gender;
+        // userDb.Active = user.Active;
+
+        _entityFramework.Add(userJobInfoDb);
+
+        if (_entityFramework.SaveChanges() > 0)
+        {
+            return Ok();
+        }
+
+        throw new Exception("Failed to Add User Job Info");
+    }
+
+    [HttpDelete("DeleteUserJobInfo/{userId}")]
+    public IActionResult DeleteUserJobInfo(int userId)
+    {
+        UserJobInfo? userJobInfoDb = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userId).FirstOrDefault();
+
+        if (userJobInfoDb != null)
+        {
+            _entityFramework.UserJobInfo.Remove(userJobInfoDb);
+
+            if (_entityFramework.SaveChanges() > 0)
+            {
+                return Ok();
+            }
+
+            throw new Exception("Failed to Delete User job info with ID " + userId);
+        }
+
+        throw new Exception("User job info not found");
     }
 }
