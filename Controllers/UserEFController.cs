@@ -111,4 +111,82 @@ public class UserEFController : ControllerBase
 
         throw new Exception("User not found");
     }
+
+    [HttpGet("UserSalary/{userId}")]
+    public UserSalary GetUserSalary(int userId)
+    {
+        UserSalary? userSalary = _entityFramework.UserSalary.Where(u => u.UserId == userId).FirstOrDefault();
+
+        if (userSalary != null)
+        {
+            return userSalary;
+        }
+
+        throw new Exception("User salary not found");
+    }
+
+    [HttpPut("EditUserSalary")]
+    public IActionResult EditUserSalary(UserSalary userSalary)
+    {
+        UserSalary? userSalaryDb = _entityFramework.UserSalary.Where(us => us.UserId == userSalary.UserId).FirstOrDefault();
+
+        if (userSalaryDb != null)
+        {
+            userSalaryDb.Salary = userSalary.Salary;
+            if (_entityFramework.SaveChanges() > 0)
+            {
+                return Ok();
+            }
+
+            throw new Exception("Failed to Edit User salary with ID " + userSalary.UserId);
+        }
+
+        throw new Exception("User salary not found");
+    }
+
+    [HttpPost("AddUserSalary")]
+    public IActionResult AddUserSalary(UserSalary userSalary)
+    {
+        //with automapper
+        UserSalary userSalaryDb = _mapper.Map<UserSalary>(userSalary);
+        
+
+        //without automapper
+        // User userDb = new User();
+
+        // userDb.FirstName = user.FirstName;
+        // userDb.LastName = user.LastName;
+        // userDb.Email = user.Email;
+        // userDb.Gender = user.Gender;
+        // userDb.Active = user.Active;
+
+        _entityFramework.Add(userSalaryDb);
+
+        if (_entityFramework.SaveChanges() > 0)
+        {
+            return Ok();
+        }
+
+        throw new Exception("Failed to Add User Salary");
+    }
+
+    [HttpDelete("DeleteUserSalary/{userId}")]
+    public IActionResult DeleteUserSalary(int userId)
+    {
+        UserSalary? userSalaryDb = _entityFramework.UserSalary.Where(us => us.UserId == userId).FirstOrDefault();
+
+        if (userSalaryDb != null)
+        {
+            _entityFramework.UserSalary.Remove(userSalaryDb);
+
+            if (_entityFramework.SaveChanges() > 0)
+            {
+                return Ok();
+            }
+
+            throw new Exception("Failed to Delete User salary with ID " + userId);
+        }
+
+        throw new Exception("User salary not found");
+    }
 }
