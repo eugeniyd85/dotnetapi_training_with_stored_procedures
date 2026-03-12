@@ -1,4 +1,4 @@
-
+using System.Globalization;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
 using DotnetAPI.Models;
@@ -102,5 +102,76 @@ public class UserController : ControllerBase
         }
         
         throw new Exception("Failed to Delete User with ID " + userId);
+    }
+
+    [HttpGet("UserSalary/{userId}")]
+    public UserSalary GetUserSalary(int userId)
+    {
+        return _dapper.LoadDataSingle<UserSalary>("SELECT * FROM TutorialAppSchema.UserSalary WHERE UserId = " + userId);
+    }
+
+    [HttpPut("EditUserSalary")]
+    public IActionResult EditUserSalary(UserSalary userSalaryForUpdate)
+    {
+        string sql = @"UPDATE TutorialAppSchema.UserSalary
+                       SET Salary = " + userSalaryForUpdate.Salary.ToString(CultureInfo.InvariantCulture) +
+                       " WHERE UserId = " + userSalaryForUpdate.UserId;
+        
+        Console.WriteLine(sql);
+
+        if (_dapper.ExecuteSql(sql))
+        {
+            return Ok(userSalaryForUpdate);
+        }
+        throw new Exception("Failed to update User Salary");
+    }
+
+    [HttpPost("AddUserSalary")]
+    public IActionResult AddUserSalary(UserSalary userSalaryToAdd)
+    {
+        // using 'userSalaryToAdd.Salary.ToString(CultureInfo.InvariantCulture)' to avoid issues with decimal separator 
+        // in different cultures (e.g., comma vs dot)
+        // but this is a very basic way to handle it and can still be vulnerable to SQL injection.
+        // the correct way to handle this is to use parameterized queries or an ORM that supports them, 
+        // which would also help prevent SQL injection attacks.
+        // CORRECT way to write the SQL string with parameters (using Dapper's parameterization):
+        // const string sql = """
+        // INSERT INTO TutorialAppSchema.UserSalary (UserId, Salary)
+        // VALUES (@UserId, @Salary)
+        // """;
+        // with next ExecuteSql wrapper:
+        // public bool ExecuteSql(string sql, object? parameters = null)
+        // {
+        //     return _connection.Execute(sql, parameters) > 0;
+        // }
+
+
+        string sql = @"INSERT INTO TutorialAppSchema.UserSalary (UserId, Salary)
+                       VALUES (" + userSalaryToAdd.UserId + ", " + userSalaryToAdd.Salary.ToString(CultureInfo.InvariantCulture) + ")";
+
+        Console.WriteLine(sql);
+        Console.WriteLine(userSalaryToAdd.Salary.GetType());
+        
+        if (_dapper.ExecuteSql(sql))
+        {
+            return Ok(userSalaryToAdd);
+        }
+        
+        throw new Exception("Failed to Add User Salary");
+    }
+
+    [HttpDelete("DeleteUserSalary/{userId}")]
+    public IActionResult DeleteUserSalary(int userId)
+    {
+        string sql = @"DELETE FROM TutorialAppSchema.UserSalary WHERE UserId = " + userId;
+        
+        Console.WriteLine(sql);
+        
+        if (_dapper.ExecuteSql(sql))
+        {
+            return Ok();
+        }
+        
+        throw new Exception("Failed to Delete User Salary");
     }
 }
