@@ -11,13 +11,13 @@ namespace DotnetAPI.Controllers;
 [Route("[controller]")]
 public class UserEFController : ControllerBase
 {
-    DataContextEF _entityFramework;
+    // DataContextEF _entityFramework; // was used before implementing repository pattern, now we will use IUserRepository to call the methods defined in UserRepository.cs for performing database operations related to users instead of directly using the DataContextEF class in the controller
     IUserRepository _userRepository;
     IMapper _mapper;
 
     public UserEFController(IConfiguration config, IUserRepository userRepository)
     {
-        _entityFramework = new DataContextEF(config); //injected configuration is used to create an instance of the DataContextEF class which will be used to interact with the database using Entity Framework
+        // _entityFramework = new DataContextEF(config); //injected configuration is used to create an instance of the DataContextEF class which will be used to interact with the database using Entity Framework
         _userRepository = userRepository; //injected IUserRepository is assigned to the _userRepository field which will be used to call the methods defined in the IUserRepository interface and implemented in the UserRepository class for performing database operations related to users
         _mapper = new Mapper(new MapperConfiguration(cfg =>
         {
@@ -30,27 +30,28 @@ public class UserEFController : ControllerBase
     [HttpGet("GetUsers")]
     public IEnumerable<User> GetUsers()
     {
-        IEnumerable<User> users = _entityFramework.Users.ToList();
+        IEnumerable<User> users = _userRepository.GetUsers();
         return users;
     }
 
     [HttpGet("GetSingleUser/{userId}")]
     public User GetSingleUser(int userId)
     {
-        User? user = _entityFramework.Users.Where(u => u.UserId == userId).FirstOrDefault();
+        // User? user = _entityFramework.Users.Where(u => u.UserId == userId).FirstOrDefault();
 
-        if (user != null)
-        {
-            return user;
-        }
+        // if (user != null)
+        // {
+        //     return user;
+        // }
 
-        throw new Exception("User not found");
+        // throw new Exception("User not found");
+        return _userRepository.GetSingleUser(userId);
     }
 
     [HttpPut("EditUser")]
     public IActionResult EditUser(User user)
     {
-        User? userDb = _entityFramework.Users.Where(u => u.UserId == user.UserId).FirstOrDefault();
+        User? userDb = _userRepository.GetSingleUser(user.UserId);
 
         if (userDb != null)
         {
@@ -99,7 +100,7 @@ public class UserEFController : ControllerBase
     [HttpDelete("DeleteUser/{userId}")]
     public IActionResult DeleteUser(int userId)
     {
-        User? userDb = _entityFramework.Users.Where(u => u.UserId == userId).FirstOrDefault();
+        User? userDb = _userRepository.GetSingleUser(userId);
 
         if (userDb != null)
         {
@@ -119,14 +120,15 @@ public class UserEFController : ControllerBase
     [HttpGet("UserSalary/{userId}")]
     public UserSalary GetUserSalary(int userId)
     {
-        UserSalary? userSalary = _entityFramework.UserSalary.Where(us => us.UserId == userId).FirstOrDefault();
+        // UserSalary? userSalary = _entityFramework.UserSalary.Where(us => us.UserId == userId).FirstOrDefault();
 
-        if (userSalary != null)
-        {
-            return userSalary;
-        }
+        // if (userSalary != null)
+        // {
+        //     return userSalary;
+        // }
 
-        throw new Exception("User salary not found");
+        // throw new Exception("User salary not found");
+        return _userRepository.GetUserSalary(userId);
     }
 
     // alternative way to get user salary
@@ -141,7 +143,7 @@ public class UserEFController : ControllerBase
     [HttpPut("EditUserSalary")]
     public IActionResult EditUserSalary(UserSalary userSalary)
     {
-        UserSalary? userSalaryDb = _entityFramework.UserSalary.Where(us => us.UserId == userSalary.UserId).FirstOrDefault();
+        UserSalary? userSalaryDb = _userRepository.GetUserSalary(userSalary.UserId);
 
         if (userSalaryDb != null)
         {
@@ -177,7 +179,7 @@ public class UserEFController : ControllerBase
     [HttpDelete("DeleteUserSalary/{userId}")]
     public IActionResult DeleteUserSalary(int userId)
     {
-        UserSalary? userSalaryDb = _entityFramework.UserSalary.Where(us => us.UserId == userId).FirstOrDefault();
+        UserSalary? userSalaryDb = _userRepository.GetUserSalary(userId);
 
         if (userSalaryDb != null)
         {
@@ -197,20 +199,21 @@ public class UserEFController : ControllerBase
     [HttpGet("UserJobInfo/{userId}")]
     public UserJobInfo GetUserJobInfo(int userId)
     {
-        UserJobInfo? userJobInfo = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userId).FirstOrDefault();
+        // UserJobInfo? userJobInfo = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userId).FirstOrDefault();
 
-        if (userJobInfo != null)
-        {
-            return userJobInfo;
-        }
+        // if (userJobInfo != null)
+        // {
+        //     return userJobInfo;
+        // }
 
-        throw new Exception("User job info not found");
+        // throw new Exception("User job info not found");
+        return _userRepository.GetUserJobInfo(userId);
     }
 
     [HttpPut("EditUserJobInfo")]
     public IActionResult EditUserJobInfo(UserJobInfo userJobInfo)
     {
-        UserJobInfo? userJobInfoDb = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userJobInfo.UserId).FirstOrDefault();
+        UserJobInfo? userJobInfoDb = _userRepository.GetUserJobInfo(userJobInfo.UserId);
 
         if (userJobInfoDb != null)
         {
@@ -247,7 +250,7 @@ public class UserEFController : ControllerBase
     [HttpDelete("DeleteUserJobInfo/{userId}")]
     public IActionResult DeleteUserJobInfo(int userId)
     {
-        UserJobInfo? userJobInfoDb = _entityFramework.UserJobInfo.Where(uj => uj.UserId == userId).FirstOrDefault();
+        UserJobInfo? userJobInfoDb = _userRepository.GetUserJobInfo(userId);
 
         if (userJobInfoDb != null)
         {
