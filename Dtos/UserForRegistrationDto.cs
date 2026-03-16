@@ -1,6 +1,6 @@
 namespace DotnetAPI.Dtos
 {
-    partial class UserForRegistrationDto
+    public partial class UserForRegistrationDto
     {
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
