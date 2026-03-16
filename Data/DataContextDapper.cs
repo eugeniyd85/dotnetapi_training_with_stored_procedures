@@ -35,6 +35,26 @@ namespace DotnetAPI.Data
         {
             IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
             return dbConnection.Execute(sql);
-        }   
+        }
+
+        public bool ExecuteSqlWithParameters(string sql, List<SqlParameter> sqlParameters)
+        {
+            SqlCommand sqlCommand = new SqlCommand(sql); // investigate more deeply what is SqlCommand and how it works with parameters and the difference with execution query in methods above
+
+            foreach (SqlParameter sqlParameter in sqlParameters)
+            {
+                sqlCommand.Parameters.Add(sqlParameter);
+            }
+            
+            SqlConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            dbConnection.Open();
+            sqlCommand.Connection = dbConnection;
+
+            int rowsAffected = sqlCommand.ExecuteNonQuery();
+
+            dbConnection.Close();
+
+            return rowsAffected > 0;
+        }
     }
 }
