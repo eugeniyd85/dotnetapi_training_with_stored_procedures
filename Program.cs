@@ -1,4 +1,7 @@
+using System.Text;
 using DotnetAPI.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +33,23 @@ builder.Services.AddCors((options) =>
  
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// Get the token key from configuration and create signing credentials
+string? tokenKeyString = builder.Configuration.GetSection("AppSettings:TokenKey").Value;
+// Ensure the token key is not null before creating the SymmetricSecurityKey
+SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKeyString!=null ? tokenKeyString : ""));
+TokenValidationParameters tokenValidationParameters = new TokenValidationParameters
+{
+    IssuerSigningKey = tokenKey,
+    ValidateIssuerSigningKey = false,
+    ValidateIssuer = false,
+    ValidateAudience = false,
+};
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = tokenValidationParameters;
+    });
 
 
 var app = builder.Build();
