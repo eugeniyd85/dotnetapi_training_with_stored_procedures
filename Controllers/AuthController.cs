@@ -1,16 +1,11 @@
 using System.Data;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
-using System.Text;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
+using DotnetAPI.Helpers;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Microsoft.IdentityModel.Tokens;
 
 namespace DotnetAPI.Controllers
 {
@@ -20,11 +15,11 @@ namespace DotnetAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly DataContextDapper _dapper;
-        private readonly IConfiguration _config;
+        private readonly AuthHelper _authHelper;
         public AuthController(IConfiguration config)
         {
             _dapper = new DataContextDapper(config);
-            _config = config;
+            _authHelper = new AuthHelper(config);
         }
 
         [AllowAnonymous]
@@ -43,7 +38,7 @@ namespace DotnetAPI.Controllers
                         rng.GetNonZeroBytes(passwordSalt);
                     }
 
-                    byte[] passwordHash = GetPasswordHash(userForRegistration.Password, passwordSalt);
+                    byte[] passwordHash = _authHelper.GetPasswordHash(userForRegistration.Password, passwordSalt);
 
                     string sqlAddAuth = "INSERT INTO TutorialAppSchema.Auth (Email, PasswordHash, PasswordSalt) VALUES ('" + userForRegistration.Email + "', @PasswordHash, @PasswordSalt)";
 
@@ -89,7 +84,7 @@ namespace DotnetAPI.Controllers
 
             UserForLoginConfirmationDto userForConfirmation = _dapper.LoadDataSingle<UserForLoginConfirmationDto>(sqlForHashAndSalt);
 
-            byte[] passwordHash = GetPasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
+            byte[] passwordHash = _authHelper.GetPasswordHash(userForLogin.Password, userForConfirmation.PasswordSalt);
 
             for (int i = 0; i < passwordHash.Length; i++)
             {
@@ -106,7 +101,7 @@ namespace DotnetAPI.Controllers
 
             return Ok(new Dictionary<string, string>
             {
-                {"token", CreateToken(userId)}
+                {"token", _authHelper.CreateToken(userId)}
             });
         }
 
@@ -122,55 +117,8 @@ namespace DotnetAPI.Controllers
 
             return Ok(new Dictionary<string, string>
             {
-                {"token", CreateToken(userIdFromDb)}
+                {"token", _authHelper.CreateToken(userIdFromDb)}
             });
-        }
-
-        private byte[] GetPasswordHash(string password, byte[] passwordSalt)
-        {
-            string passwordSaltPlusString = _config.GetSection("AppSettings:PasswordKey").Value + Convert.ToBase64String(passwordSalt);
-
-            return KeyDerivation.Pbkdf2(
-                password: password,
-                salt: Encoding.ASCII.GetBytes(passwordSaltPlusString),
-                prf: KeyDerivationPrf.HMACSHA256,
-                iterationCount: 100000,
-                numBytesRequested: 256 / 8);
-        }
-
-        private string CreateToken(int userId)
-        {
-            // Create claims for the token, including the user ID as a claim
-            Claim[] claims = new Claim[]
-            {
-                new Claim("userId", userId.ToString())
-            };
-
-            // Get the token key from configuration and create signing credentials
-            string? tokenKeyString = _config.GetSection("AppSettings:TokenKey").Value;
-
-            // Ensure the token key is not null before creating the SymmetricSecurityKey
-            SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKeyString!=null ? tokenKeyString : ""));
-
-            // Create signing credentials using the token key and specify the hashing algorithm
-            SigningCredentials credentials = new SigningCredentials(tokenKey, SecurityAlgorithms.HmacSha256Signature);
-
-            // Create a token descriptor that includes the claims, expiration time, and signing credentials
-            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(1),
-                SigningCredentials = credentials
-            };
-
-            // Create a token handler to generate the JWT token based on the token descriptor
-            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-
-            // Generate the token using the token handler and the token descriptor
-            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-
-            // Return the generated token as a string
-            return tokenHandler.WriteToken(token);
         }
     }
 }
