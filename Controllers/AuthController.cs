@@ -1,4 +1,6 @@
 using System.Data;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using DotnetAPI.Data;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
 
 namespace DotnetAPI.Controllers
 {
@@ -52,10 +55,17 @@ namespace DotnetAPI.Controllers
 
                     if (_dapper.ExecuteSqlWithParameters(sqlAddAuth, sqlParameters))
                     {
-                        return Ok();
+
+                        string sqlAddUser = @"INSERT INTO TutorialAppSchema.Users (FirstName, LastName, Email, Gender, Active)
+                            VALUES ('" + userForRegistration.FirstName + @"', '" + userForRegistration.LastName + @"', '" + userForRegistration.Email + @"', '" + userForRegistration.Gender + @"', 1)";
+
+                        if (_dapper.ExecuteSql(sqlAddUser))
+                        {
+                            return Ok();
+                        }
+                        throw new Exception("Failed to add user");
                     }
                     throw new Exception("Failed to register user");
-
                 }
                 throw new Exception("User with this email already exists");
 
@@ -84,7 +94,14 @@ namespace DotnetAPI.Controllers
                 }
             }
             
-            return Ok();
+            string getUserIdSql = "SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '" + userForLogin.Email + "'";
+
+            int userId = _dapper.LoadDataSingle<int>(getUserIdSql);
+
+            return Ok(new Dictionary<string, string>
+            {
+                {"token", CreateToken(userId)}
+            });
         }
 
         private byte[] GetPasswordHash(string password, byte[] passwordSalt)
@@ -97,6 +114,41 @@ namespace DotnetAPI.Controllers
                 prf: KeyDerivationPrf.HMACSHA256,
                 iterationCount: 100000,
                 numBytesRequested: 256 / 8);
+        }
+
+        private string CreateToken(int userId)
+        {
+            // Create claims for the token, including the user ID as a claim
+            Claim[] claims = new Claim[]
+            {
+                new Claim("userId", userId.ToString())
+            };
+
+            // Get the token key from configuration and create signing credentials
+            string? tokenKeyString = _config.GetSection("AppSettings:TokenKey").Value;
+
+            // Ensure the token key is not null before creating the SymmetricSecurityKey
+            SymmetricSecurityKey tokenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(tokenKeyString!=null ? tokenKeyString : ""));
+
+            // Create signing credentials using the token key and specify the hashing algorithm
+            SigningCredentials credentials = new SigningCredentials(tokenKey, SecurityAlgorithms.HmacSha256Signature);
+
+            // Create a token descriptor that includes the claims, expiration time, and signing credentials
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = credentials
+            };
+
+            // Create a token handler to generate the JWT token based on the token descriptor
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            // Generate the token using the token handler and the token descriptor
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+
+            // Return the generated token as a string
+            return tokenHandler.WriteToken(token);
         }
     }
 }
