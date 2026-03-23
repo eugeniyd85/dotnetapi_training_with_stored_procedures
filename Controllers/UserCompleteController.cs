@@ -23,8 +23,8 @@ public class UserCompleteController : ControllerBase
          return _dapper.LoadDataSingle<DateTime>("SELECT GETDATE()");
     }
 
-    // still can't set isActive as optional parameter in Swagger UI. Find out how to do it.
-    [HttpGet("GetUsers/{userId}/{isActive?}")]
+    // still can't set isActive as optional parameter in Swagger UI. Find out how to do it => remove {isActive} from the route and add it as a query parameter
+    [HttpGet("GetUsers/{userId}")]
     // public IActionResult Test()
     public IEnumerable<UserComplete> GetUsers(int userId, bool? isActive)
     {
@@ -41,7 +41,10 @@ public class UserCompleteController : ControllerBase
             parameters += ", @Active = " + isActive.Value.ToString();
         }
 
-        sql += parameters.Substring(1); // Remove the leading comma and space
+        if (!string.IsNullOrEmpty(parameters))
+        {
+            sql += parameters.Substring(1); // Remove the leading comma and space            
+        }
 
         Console.WriteLine(sql);
          
