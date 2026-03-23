@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Ava+J5TWkgk=",
+  "dgSpecHash": "8RgmQlOMntE=",
   "success": true,
-  "projectFilePath": "C:\\Users\\admin\\source\\repos\\DotnetAPI\\DotnetAPI.csproj",
+  "projectFilePath": "C:\\Users\\admin\\source\\repos\\dotnetapi_training_with_stored_procedures\\DotnetAPI.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\admin\\.nuget\\packages\\automapper\\14.0.0\\automapper.14.0.0.nupkg.sha512",
     "C:\\Users\\admin\\.nuget\\packages\\azure.core\\1.50.0\\azure.core.1.50.0.nupkg.sha512",
@@ -44,9 +44,9 @@
       "code": "NU1903",
       "level": "Warning",
       "message": "Package 'AutoMapper' 14.0.0 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x",
-      "projectPath": "C:\\Users\\admin\\source\\repos\\DotnetAPI\\DotnetAPI.csproj",
+      "projectPath": "C:\\Users\\admin\\source\\repos\\dotnetapi_training_with_stored_procedures\\DotnetAPI.csproj",
       "warningLevel": 1,
-      "filePath": "C:\\Users\\admin\\source\\repos\\DotnetAPI\\DotnetAPI.csproj",
+      "filePath": "C:\\Users\\admin\\source\\repos\\dotnetapi_training_with_stored_procedures\\DotnetAPI.csproj",
       "libraryId": "AutoMapper",
       "targetGraphs": [
         "net10.0"
