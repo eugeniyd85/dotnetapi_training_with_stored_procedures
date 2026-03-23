@@ -43,7 +43,7 @@ public class UserCompleteController : ControllerBase
 
         if (!string.IsNullOrEmpty(parameters))
         {
-            sql += parameters.Substring(1); // Remove the leading comma and space            
+            sql += parameters.Substring(1); // remove the first comma
         }
 
         Console.WriteLine(sql);

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DotnetAPI.Controllers
 {
-    [Authorize]
+    // [Authorize]
     [ApiController]
     // sets whatever before "Cotroller" in the class name as a base of the route 
     [Route("[controller]")]
@@ -18,24 +18,35 @@ namespace DotnetAPI.Controllers
             _dapper = new DataContextDapper(config);
         }
 
-        [HttpGet("Posts")]
-        public IEnumerable<Post> GetPosts()
+        [HttpGet("Posts/{postId}/{userId}/{searchParam}")]
+        public IEnumerable<Post> GetPosts(int postId, int userId, string searchParam = "None")
         {
-            string sql = "SELECT * FROM TutorialAppSchema.Posts";
-            return _dapper.LoadData<Post>(sql);
-        }
+            string sql = "EXEC TutorialAppSchema.spPosts_Get";
+            string parameters = "";
 
-        [HttpGet("PostSingle/{postId}")]
-        public Post GetPostSingle(int postId)
-        {
-            string sql = "SELECT * FROM TutorialAppSchema.Posts WHERE PostId = " + postId.ToString();
-            return _dapper.LoadDataSingle<Post>(sql);
-        }
+            if (postId != 0)
+            {
+                parameters += ", @PostId = " + postId.ToString();
+            }
 
-        [HttpGet("PostsByUser/{userId}")]
-        public IEnumerable<Post> GetPostsByUser(int userId)
-        {
-            string sql = "SELECT * FROM TutorialAppSchema.Posts WHERE UserId = " + userId.ToString();
+            if (userId != 0)
+            {
+                parameters += ", @UserId = " + userId.ToString();
+            }
+
+            if (searchParam != "None")
+            {
+                parameters += ", @SearchValue = '" + searchParam + "'";
+            }
+
+            // compare with '!string.IsNullOrEmpty(parameters)' in UserController.cs, what is better to use or the same? => both are fine, but the one with 'parameters.Length > 0' is more efficient because it does not need to call a method, it just checks the length of the string, while the one with '!string.IsNullOrEmpty(parameters)' needs to call the IsNullOrEmpty method which checks if the string is null or empty, and then returns a boolean value, so it is less efficient than just checking the length of the string
+            if (parameters.Length > 0)
+            {
+                sql += parameters.Substring(1); // remove the first comma
+            }
+
+            Console.WriteLine(sql);
+            
             return _dapper.LoadData<Post>(sql);
         }
 
@@ -45,15 +56,6 @@ namespace DotnetAPI.Controllers
         public IEnumerable<Post> GetMyPosts()
         {
             string sql = "SELECT * FROM TutorialAppSchema.Posts WHERE UserId = " + this.User.FindFirst("userId")?.Value; // this in this.User reffers to PostController class, and User is a property of the ControllerBase class that PostController inherits from, and it is of type ClaimsPrincipal which represents the current user and their claims, and we can use the FindFirst method to find the claim with the type "UserId" and get its value, and we can use it in the sql query to get only the posts of the currently logged in user
-            return _dapper.LoadData<Post>(sql);
-        }
-
-        [HttpGet("PostsBySearch/{searchParam}")]
-        public IEnumerable<Post> GetPostsBySearch(string searchParam)
-        {
-            // this would be more complicated using Entity Framework and LINQ
-            // maybe remove userId check?
-            string sql = "SELECT * FROM TutorialAppSchema.Posts WHERE UserId = " + this.User.FindFirst("userId")?.Value + " AND (PostTitle LIKE '%" + searchParam + "%' OR PostContent LIKE '%" + searchParam + "%')";
             return _dapper.LoadData<Post>(sql);
         }
 
