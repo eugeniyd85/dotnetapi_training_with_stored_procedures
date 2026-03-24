@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DotnetAPI.Controllers
 {
-    // [Authorize]
+    [Authorize]
     [ApiController]
     // sets whatever before "Cotroller" in the class name as a base of the route 
     [Route("[controller]")]
@@ -19,7 +19,7 @@ namespace DotnetAPI.Controllers
         }
 
         [HttpGet("Posts/{postId}/{userId}/{searchParam}")]
-        public IEnumerable<Post> GetPosts(int postId, int userId, string searchParam = "None")
+        public IEnumerable<Post> GetPosts(int postId = 0, int userId = 0, string searchParam = "None")
         {
             string sql = "EXEC TutorialAppSchema.spPosts_Get";
             string parameters = "";
@@ -55,16 +55,24 @@ namespace DotnetAPI.Controllers
         [HttpGet("MyPosts")]
         public IEnumerable<Post> GetMyPosts()
         {
-            string sql = "SELECT * FROM TutorialAppSchema.Posts WHERE UserId = " + this.User.FindFirst("userId")?.Value; // this in this.User reffers to PostController class, and User is a property of the ControllerBase class that PostController inherits from, and it is of type ClaimsPrincipal which represents the current user and their claims, and we can use the FindFirst method to find the claim with the type "UserId" and get its value, and we can use it in the sql query to get only the posts of the currently logged in user
+            string sql = @"EXEC TutorialAppSchema.spPosts_Get @UserId = " + this.User.FindFirst("userId")?.Value;
             return _dapper.LoadData<Post>(sql);
         }
 
-        [HttpPost("AddPost")]
-        public IActionResult AddPost(PostToAddDto postToAddDto)
+        [HttpPut("UpsertPost")]
+        public IActionResult UpsertPost(Post postToUpsert)
         {
             // find out why here 'this.User.FindFirst("userId")?.Value' UserId caused and error but "userId" works fine
-            string sql = "INSERT INTO TutorialAppSchema.Posts (UserId, PostTitle, PostContent, PostCreated, PostUpdated) VALUES (" + this.User.FindFirst("userId")?.Value + ", '" + postToAddDto.PostTitle + "', '" + postToAddDto.PostContent + "', GETDATE(), GETDATE())";
+            string sql = @"EXEC TutorialAppSchema.spPosts_Upsert 
+                @UserId = " + this.User.FindFirst("userId")?.Value + @", 
+                @PostTitle = '" + postToUpsert.PostTitle + @"', 
+                @PostContent = '" + postToUpsert.PostContent + "'";
             
+            if (postToUpsert.PostId > 0)
+            {
+                sql += ", @PostId = " + postToUpsert.PostId;
+            }
+
             Console.WriteLine(sql);
 
             if (_dapper.ExecuteSql(sql))
@@ -72,26 +80,13 @@ namespace DotnetAPI.Controllers
                 return Ok();
             }
 
-            throw new Exception("Failed to add post");
-        }
-
-        [HttpPut("EditPost")]
-        public IActionResult EditPost(PostToEditDto postToEditDto)
-        {
-            string sql = "UPDATE TutorialAppSchema.Posts SET PostTitle = '" + postToEditDto.PostTitle + "', PostContent = '" + postToEditDto.PostContent + "', PostUpdated = GETDATE() WHERE PostId = " + postToEditDto.PostId.ToString() + " AND UserId = " + this.User.FindFirst("userId")?.Value;
-            
-            if (_dapper.ExecuteSql(sql))
-            {
-                return Ok();
-            }
-
-            throw new Exception("Failed to edit post");
+            throw new Exception("Failed to upsert post");
         }
 
         [HttpDelete("DeletePost/{postId}")]
         public IActionResult DeletePost(int postId)
         {
-            string sql = "DELETE FROM TutorialAppSchema.Posts WHERE PostId = " + postId.ToString() + " AND UserId = " + this.User.FindFirst("userId")?.Value;
+            string sql = "EXEC TutorialAppSchema.spPosts_Delete @PostId = " + postId.ToString() + ", @UserId = " + this.User.FindFirst("userId")?.Value;
             
             if (_dapper.ExecuteSql(sql))
             {
