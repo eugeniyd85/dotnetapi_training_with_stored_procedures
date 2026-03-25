@@ -39,7 +39,7 @@ namespace DotnetAPI.Controllers
                 parameters += ", @SearchValue = '" + searchParam + "'";
             }
 
-            // compare with '!string.IsNullOrEmpty(parameters)' in UserController.cs, what is better to use or the same? => both are fine, but the one with 'parameters.Length > 0' is more efficient because it does not need to call a method, it just checks the length of the string, while the one with '!string.IsNullOrEmpty(parameters)' needs to call the IsNullOrEmpty method which checks if the string is null or empty, and then returns a boolean value, so it is less efficient than just checking the length of the string
+            // compare with '!string.IsNullOrEmpty(parameters)' in UserCompleteController.cs, what is better to use or the same? => both are fine, but the one with 'parameters.Length > 0' is more efficient because it does not need to call a method, it just checks the length of the string, while the one with '!string.IsNullOrEmpty(parameters)' needs to call the IsNullOrEmpty method which checks if the string is null or empty, and then returns a boolean value, so it is less efficient than just checking the length of the string
             if (parameters.Length > 0)
             {
                 sql += parameters.Substring(1); // remove the first comma

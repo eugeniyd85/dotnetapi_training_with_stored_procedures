@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DotnetAPI.Controllers;
 
+// obsolete controller that was use for training simple CRUD operations with Dapper without using stored procedures. UserCompleteController is user now
 [ApiController]
 [Route("[controller]")]
 public class UserController : ControllerBase

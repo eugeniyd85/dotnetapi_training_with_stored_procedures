@@ -37,24 +37,23 @@ namespace DotnetAPI.Data
             return dbConnection.Execute(sql);
         }
 
-        public bool ExecuteSqlWithParameters(string sql, List<SqlParameter> sqlParameters)
+        public bool ExecuteSqlWithParameters(string sql, DynamicParameters sqlParameters)
         {
-            SqlCommand sqlCommand = new SqlCommand(sql); // investigate more deeply what is SqlCommand and how it works with parameters and the difference with execution query in methods above
-
-            foreach (SqlParameter sqlParameter in sqlParameters)
-            {
-                sqlCommand.Parameters.Add(sqlParameter);
-            }
+            IDbConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            return dbConnection.Execute(sql, sqlParameters) > 0;
             
-            SqlConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
-            dbConnection.Open();
-            sqlCommand.Connection = dbConnection;
-
-            int rowsAffected = sqlCommand.ExecuteNonQuery();
-
-            dbConnection.Close();
-
-            return rowsAffected > 0;
+            // next block is an obsolete version of 2 strings above. Need to use 'List<SqlParameter> sqlParameters' instead of 'DynamicParameters sqlParameters'
+            // SqlCommand sqlCommand = new SqlCommand(sql); // investigate more deeply what is SqlCommand and how it works with parameters and the difference with execution query in methods above
+            // foreach (SqlParameter sqlParameter in sqlParameters)
+            // {
+            //     sqlCommand.Parameters.Add(sqlParameter);
+            // }
+            // SqlConnection dbConnection = new SqlConnection(_config.GetConnectionString("DefaultConnection"));
+            // dbConnection.Open();
+            // sqlCommand.Connection = dbConnection;
+            // int rowsAffected = sqlCommand.ExecuteNonQuery();
+            // dbConnection.Close();
+            // return rowsAffected > 0;
         }
 
         public IEnumerable<T> LoadDataWithParameters<T>(string sql, DynamicParameters sqlParameters)

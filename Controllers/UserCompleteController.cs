@@ -1,4 +1,6 @@
+using System.Data;
 using System.Globalization;
+using Dapper;
 using DotnetAPI.Data;
 using DotnetAPI.Dtos;
 using DotnetAPI.Models;
@@ -24,49 +26,67 @@ public class UserCompleteController : ControllerBase
     }
 
     // still can't set isActive as optional parameter in Swagger UI. Find out how to do it => remove {isActive} from the route and add it as a query parameter
+    // claify is there really necessary to add {isActive} in the URL params?
     [HttpGet("GetUsers/{userId}")]
-    // public IActionResult Test()
     public IEnumerable<UserComplete> GetUsers(int userId, bool? isActive)
     {
         string sql = @"EXEC TutorialAppSchema.spUsers_Get";
-        string parameters = "";
+        string stringParameters = "";
+        DynamicParameters sqlParameters = new DynamicParameters();
+
+
         
         if (userId != 0)
         {
-            parameters += ", @UserId = " + userId.ToString();
+            stringParameters += ", @UserId = @UserIdParameter";
+            sqlParameters.Add("@UserIdParameter", userId, DbType.Int32);
         }
 
         if (isActive.HasValue)
         {
-            parameters += ", @Active = " + isActive.Value.ToString();
+            stringParameters += ", @Active = @ActiveParameter";
+            sqlParameters.Add("@ActiveParameter", isActive, DbType.Boolean);
         }
 
-        if (!string.IsNullOrEmpty(parameters))
+        if (stringParameters.Length > 0 )
         {
-            sql += parameters.Substring(1); // remove the first comma
+            sql += stringParameters.Substring(1); // remove the first comma
         }
 
         Console.WriteLine(sql);
          
-        IEnumerable<UserComplete> users = _dapper.LoadData<UserComplete>(sql);
+        IEnumerable<UserComplete> users = _dapper.LoadDataWithParameters<UserComplete>(sql, sqlParameters);
         return users;
     }
 
     [HttpPut("UpsertUser")]
     public IActionResult UpsertUser(UserComplete user)
     {
+        // there is an error at adding user with the same email => Failed to update user with ID 0, maybe rework it?
         string sql = @"EXEC TutorialAppSchema.spUser_Upsert
-                       @FirstName = '" + user.FirstName + @"',
-                       @LastName = '" + user.LastName + @"',
-                       @Email = '" + user.Email + @"',
-                       @Gender = '" + user.Gender + @"',
-                       @JobTitle = '" + user.JobTitle + @"',
-                       @Department = '" + user.Department + @"',
-                       @Salary = " + user.Salary.ToString(CultureInfo.InvariantCulture) + @",
-                       @Active = " + user.Active + @",
-                       @UserId = " + user.UserId;
+                       @FirstName = @FirstNameParameter,
+                       @LastName = @LastNameParameter,
+                       @Email = @EmailParameter,
+                       @Gender = @GenderParameter,
+                       @JobTitle = @JobTitleParameter,
+                       @Department = @DepartmentParameter,
+                       @Salary = @SalaryParameter,
+                       @Active = @ActiveParameter,
+                       @UserId = @UserIdParameter";
 
-        if (_dapper.ExecuteSql(sql))
+        DynamicParameters sqlParameters = new DynamicParameters();
+
+        sqlParameters.Add("@FirstNameParameter", user.FirstName, DbType.String);
+        sqlParameters.Add("@LastNameParameter", user.LastName, DbType.String);
+        sqlParameters.Add("@EmailParameter", user.Email, DbType.String);
+        sqlParameters.Add("@GenderParameter", user.Gender, DbType.String);
+        sqlParameters.Add("@JobTitleParameter", user.JobTitle, DbType.String);
+        sqlParameters.Add("@DepartmentParameter", user.Department, DbType.String);
+        sqlParameters.Add("@SalaryParameter", user.Salary, DbType.Decimal);
+        sqlParameters.Add("@ActiveParameter", user.Active, DbType.Boolean);
+        sqlParameters.Add("@UserIdParameter", user.UserId, DbType.Int32);
+
+        if (_dapper.ExecuteSqlWithParameters(sql, sqlParameters))
         {
             return Ok();
         }
@@ -76,11 +96,13 @@ public class UserCompleteController : ControllerBase
     [HttpDelete("DeleteUser/{userId}")]
     public IActionResult DeleteUser(int userId)
     {
-        string sql = @"EXEC TutorialAppSchema.spUser_Delete @UserId = " + userId.ToString();
+        string sql = @"EXEC TutorialAppSchema.spUser_Delete @UserId = @UserIdParameter";
         
-        Console.WriteLine(sql);
+        DynamicParameters sqlParameters = new DynamicParameters();
+
+        sqlParameters.Add("@UserIdParameter", userId, DbType.Int32);
         
-        if (_dapper.ExecuteSql(sql))
+        if (_dapper.ExecuteSqlWithParameters(sql, sqlParameters))
         {
             return Ok();
         }
