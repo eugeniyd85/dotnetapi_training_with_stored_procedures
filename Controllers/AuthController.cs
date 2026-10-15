@@ -28,10 +28,11 @@ namespace DotnetAPI.Controllers
             _dapper = new DataContextDapper(config);
             _authHelper = new AuthHelper(config);
             _reusableSql = new ReusableSql(config);
-            _mapper = new Mapper(new MapperConfiguration(cfg =>
+            var mapperConfig = new MapperConfiguration(cfg =>
             {
                 cfg.CreateMap<UserForRegistrationDto, UserComplete>();
-            }));
+            });
+            _mapper = mapperConfig.CreateMapper();
         }
 
         [AllowAnonymous]

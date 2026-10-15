@@ -20,12 +20,13 @@ public class UserEFController : ControllerBase
     {
         // _entityFramework = new DataContextEF(config); //injected configuration is used to create an instance of the DataContextEF class which will be used to interact with the database using Entity Framework
         _userRepository = userRepository; //injected IUserRepository is assigned to the _userRepository field which will be used to call the methods defined in the IUserRepository interface and implemented in the UserRepository class for performing database operations related to users
-        _mapper = new Mapper(new MapperConfiguration(cfg =>
+        var mapperConfig = new MapperConfiguration(cfg =>
         {
             cfg.CreateMap<UserToAddDto, User>();
             cfg.CreateMap<UserSalary, UserSalary>();
             cfg.CreateMap<UserJobInfo, UserJobInfo>();
-        }));
+        });
+        _mapper = mapperConfig.CreateMapper();
     }
 
     [HttpGet("GetUsers")]
