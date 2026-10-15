@@ -83,8 +83,6 @@ The API expects a SQL Server database (default name `DotNetCourseDatabase`) with
 - `spUsers_Get`, `spUser_Upsert`, `spUser_Delete`
 - `spPosts_Get`, `spPosts_Upsert`, `spPosts_Delete`
 
-> The SQL scripts that create these objects are not included in this repository yet.
-
 ## Getting Started
 
 **Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download) and SQL Server (LocalDB, Express or Docker).
@@ -137,6 +135,6 @@ dotnet user-secrets set "AppSettings:PasswordKey" "<another-long-random-string>"
 ## Known Limitations / Ideas for Improvement
 
 - Some queries in `AuthController` and in the legacy `UserController` build SQL by string concatenation; they should use parameters or stored procedures.
-- Add the database creation scripts and a `docker-compose` file for a one-command setup.
+- Add a `docker-compose` file for a one-command setup.
 - Add unit and integration tests.
 - Replace generic `Exception` throws with proper HTTP error responses and global error handling.
