@@ -81,7 +81,7 @@ The API expects a SQL Server database (default name `DotNetCourseDatabase`) with
 
 - `spLoginConfirmation_Get`, `spRegistration_Upsert`
 - `spUsers_Get`, `spUser_Upsert`, `spUser_Delete`
-- `spPosts_Get`, `spPosts_Upsert`, `spPosts_Delete`
+- `spPosts_Get`, `spPosts_Upsert`, `spPost_Delete`
 
 ## Getting Started
 

@@ -101,7 +101,7 @@ namespace DotnetAPI.Controllers
         [HttpDelete("DeletePost/{postId}")]
         public IActionResult DeletePost(int postId)
         {
-            string sql = @"EXEC TutorialAppSchema.spPosts_Delete
+            string sql = @"EXEC TutorialAppSchema.spPost_Delete
                 @PostId = @PostIdParameter,
                 @UserId = @UserIdParameter";
             
