@@ -1,7 +1,7 @@
 USE DotNetCourseDatabase
 GO
 
-CREATE PROCEDURE TutorialAppSchema.spUser_Delete
+CREATE OR ALTER PROCEDURE TutorialAppSchema.spUser_Delete
     @UserId INT
 AS
 BEGIN

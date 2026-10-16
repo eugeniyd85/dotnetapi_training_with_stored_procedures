@@ -1,7 +1,7 @@
 USE DotNetCourseDatabase
 GO
 
-CREATE PROCEDURE TutorialAppSchema.spPost_Delete
+CREATE OR ALTER PROCEDURE TutorialAppSchema.spPost_Delete
     @PostId INT
 AS
 BEGIN
