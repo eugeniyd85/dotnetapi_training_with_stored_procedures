@@ -97,7 +97,7 @@ Run the scripts in this order:
    dotnet run
    ```
 
-   Check the connection string in `Sql/SQLSeed/appsettings.json` first (default: `localhost` with Windows authentication). The app **drops and recreates** `Users`, `UserSalary` and `UserJobInfo`, so existing data in those tables will be lost. It targets .NET 9, so the .NET 9 runtime is required.
+   Check the connection string in `Sql/SQLSeed/appsettings.json` first (default: `localhost` with Windows authentication). The app **drops and recreates** `Users`, `UserSalary` and `UserJobInfo`, so existing data in those tables will be lost. It targets .NET 10 (same as the API).
 
 > The other files in `Sql/SQLScripts/` (`Auth.sql`, `Post.sql`, `Users.sql`, `Intermediate.sql`) are individual course scripts; `TablePrep.sql` already covers the tables the API needs.
 
