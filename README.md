@@ -73,7 +73,7 @@ Endpoints marked 🔒 require an `Authorization: Bearer <token>` header.
 
 ## Database
 
-The API expects a SQL Server database (default name `DotNetCourseDatabase`) with the schema `TutorialAppSchema`.
+The API expects a SQL Server database (default name `DotNetCourseDatabase`) with the schema `TutorialAppSchema`. All scripts are in the `Sql/` folder.
 
 **Tables:** `Users`, `UserSalary`, `UserJobInfo`, `Auth`, `Posts`
 
@@ -83,12 +83,30 @@ The API expects a SQL Server database (default name `DotNetCourseDatabase`) with
 - `spUsers_Get`, `spUser_Upsert`, `spUser_Delete`
 - `spPosts_Get`, `spPosts_Upsert`, `spPost_Delete`
 
+### Database Setup
+
+Run the scripts in this order:
+
+1. **Database and schema:** run the first statements of `Sql/SQLScripts/Basics.sql` (`CREATE DATABASE`, `USE`, `CREATE SCHEMA TutorialAppSchema`). The rest of that file contains training exercises.
+2. **Tables:** run `Sql/SQLScripts/TablePrep.sql`. It drops and recreates `Users`, `UserSalary`, `UserJobInfo`, `Auth` and `Posts`.
+3. **Stored procedures:** run every file in `Sql/StoredProcedures/`.
+4. **Sample data (optional):** `Sql/SQLSeed` is a small console app that loads test users, salaries and job info from JSON files:
+
+   ```bash
+   cd Sql/SQLSeed
+   dotnet run
+   ```
+
+   Check the connection string in `Sql/SQLSeed/appsettings.json` first (default: `localhost` with Windows authentication). The app **drops and recreates** `Users`, `UserSalary` and `UserJobInfo`, so existing data in those tables will be lost. It targets .NET 9, so the .NET 9 runtime is required.
+
+> The other files in `Sql/SQLScripts/` (`Auth.sql`, `Post.sql`, `Users.sql`, `Intermediate.sql`) are individual course scripts; `TablePrep.sql` already covers the tables the API needs.
+
 ## Getting Started
 
 **Prerequisites:** [.NET 10 SDK](https://dotnet.microsoft.com/download) and SQL Server (LocalDB, Express or Docker).
 
 1. Clone the repository and open the project folder.
-2. Create the database, schema, tables and stored procedures listed above.
+2. Set up the database (see [Database Setup](#database-setup) above).
 3. Configure the connection string and secrets (see below).
 4. Run the API:
 
