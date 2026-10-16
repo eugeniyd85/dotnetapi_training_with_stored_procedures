@@ -138,4 +138,4 @@ dotnet user-secrets set "AppSettings:PasswordKey" "<another-long-random-string>"
 - Add a `docker-compose` file for a one-command setup.
 - Add unit and integration tests.
 - Replace generic `Exception` throws with proper HTTP error responses and global error handling.
-- In AuthController.cs > ResetPassword lets any logged-in user change anyone’s password.
+- `AuthController.ResetPassword` lets any logged-in user change anyone's password (training example, not production-ready).
