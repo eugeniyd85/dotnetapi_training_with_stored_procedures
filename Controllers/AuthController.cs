@@ -41,6 +41,7 @@ namespace DotnetAPI.Controllers
         {
             if (userForRegistration.Password == userForRegistration.PasswordConfirm)
             {
+                // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
                 string sqlCheckUserExists = "SELECT Email FROM TutorialAppSchema.Auth WHERE Email = '" + userForRegistration.Email + "'";
                 
                 IEnumerable<string> existingUsers = _dapper.LoadData<string>(sqlCheckUserExists);
@@ -107,7 +108,8 @@ namespace DotnetAPI.Controllers
                     return StatusCode(401, "Invalid password");
                 }
             }
-            
+
+            // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
             string getUserIdSql = "SELECT UserId FROM TutorialAppSchema.Users WHERE Email = '" + userForLogin.Email + "'";
 
             int userId = _dapper.LoadDataSingle<int>(getUserIdSql);
@@ -124,6 +126,7 @@ namespace DotnetAPI.Controllers
             // Get the user ID from the claims in the current token
             string userId = User.FindFirst("userId")?.Value + "";
 
+            // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
             string userIdSql = "SELECT UserId FROM TutorialAppSchema.Users WHERE UserId = '" + userId + "'";
 
             int userIdFromDb = _dapper.LoadDataSingle<int>(userIdSql);

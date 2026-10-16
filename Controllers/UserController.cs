@@ -37,6 +37,7 @@ public class UserController : ControllerBase
     // public IActionResult Test()
     public User GetSingleUser(int userId)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = "SELECT * FROM TutorialAppSchema.Users WHERE UserId = " + userId.ToString();
         User user = _dapper.LoadDataSingle<User>(sql);
         return user;
@@ -45,6 +46,7 @@ public class UserController : ControllerBase
     [HttpPut("EditUser")]
     public IActionResult EditUser(User user)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"UPDATE TutorialAppSchema.Users
                        SET FirstName = '" + user.FirstName + @"',
                            LastName = '" + user.LastName + @"',
@@ -77,6 +79,7 @@ public class UserController : ControllerBase
     [HttpPost("AddUser")]
     public IActionResult AddUser(UserToAddDto user)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"INSERT INTO TutorialAppSchema.Users (FirstName, LastName, Email, Gender, Active)
                        VALUES ('" + user.FirstName + @"', '" + user.LastName + @"', '" + user.Email + @"', '" + user.Gender + @"', '" + user.Active + @"')";
         
@@ -93,6 +96,7 @@ public class UserController : ControllerBase
     [HttpDelete("DeleteUser/{userId}")]
     public IActionResult DeleteUser(int userId)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"DELETE FROM TutorialAppSchema.Users WHERE UserId = " + userId.ToString();
         
         Console.WriteLine(sql);
@@ -108,12 +112,14 @@ public class UserController : ControllerBase
     [HttpGet("UserSalary/{userId}")]
     public UserSalary GetUserSalary(int userId)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         return _dapper.LoadDataSingle<UserSalary>("SELECT * FROM TutorialAppSchema.UserSalary WHERE UserId = " + userId);
     }
 
     [HttpPut("EditUserSalary")]
     public IActionResult EditUserSalary(UserSalary userSalaryForUpdate)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"UPDATE TutorialAppSchema.UserSalary
                        SET Salary = " + userSalaryForUpdate.Salary.ToString(CultureInfo.InvariantCulture) +
                        " WHERE UserId = " + userSalaryForUpdate.UserId;
@@ -147,6 +153,7 @@ public class UserController : ControllerBase
         // }
 
 
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"INSERT INTO TutorialAppSchema.UserSalary (UserId, Salary)
                        VALUES (" + userSalaryToAdd.UserId + ", " + userSalaryToAdd.Salary.ToString(CultureInfo.InvariantCulture) + ")";
 
@@ -164,6 +171,7 @@ public class UserController : ControllerBase
     [HttpDelete("DeleteUserSalary/{userId}")]
     public IActionResult DeleteUserSalary(int userId)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"DELETE FROM TutorialAppSchema.UserSalary WHERE UserId = " + userId;
         
         Console.WriteLine(sql);
@@ -179,12 +187,14 @@ public class UserController : ControllerBase
     [HttpGet("UserJobInfo/{userId}")]
     public UserJobInfo GetUserJobInfo(int userId)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         return _dapper.LoadDataSingle<UserJobInfo>("SELECT * FROM TutorialAppSchema.UserJobInfo WHERE UserId = " + userId);
     }
 
     [HttpPut("EditUserJobInfo")]
     public IActionResult EditUserJobInfo(UserJobInfo userJobInfoForUpdate)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"UPDATE TutorialAppSchema.UserJobInfo
                        SET JobTitle = '" + userJobInfoForUpdate.JobTitle + @"',
                            Department = '" + userJobInfoForUpdate.Department + @"'
@@ -202,6 +212,7 @@ public class UserController : ControllerBase
     [HttpPost("AddUserJobInfo")]
     public IActionResult AddUserJobInfo(UserJobInfo userJobInfoToAdd)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"INSERT INTO TutorialAppSchema.UserJobInfo (UserId, JobTitle, Department)
                        VALUES (" + userJobInfoToAdd.UserId + ", '" + userJobInfoToAdd.JobTitle + "', '" + userJobInfoToAdd.Department + "')";
 
@@ -218,6 +229,7 @@ public class UserController : ControllerBase
     [HttpDelete("DeleteUserJobInfo/{userId}")]
     public IActionResult DeleteUserJobInfo(int userId)
     {
+        // Intentionally left as “how not to do” example (concatenation). Use parameterized version instead as correct approach.
         string sql = @"DELETE FROM TutorialAppSchema.UserJobInfo WHERE UserId = " + userId;
         
         Console.WriteLine(sql);

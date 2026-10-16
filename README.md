@@ -134,7 +134,8 @@ dotnet user-secrets set "AppSettings:PasswordKey" "<another-long-random-string>"
 
 ## Known Limitations / Ideas for Improvement
 
-- Some queries in `AuthController` and in the legacy `UserController` build SQL by string concatenation; they should use parameters or stored procedures.
+- Intentionally left as “how not to do” examples. Some queries in AuthController and the legacy UserController build SQL by string concatenation (vulnerable to SQL injection). Never do this in production code.
 - Add a `docker-compose` file for a one-command setup.
 - Add unit and integration tests.
 - Replace generic `Exception` throws with proper HTTP error responses and global error handling.
+- In AuthController.cs > ResetPassword lets any logged-in user change anyone’s password.
